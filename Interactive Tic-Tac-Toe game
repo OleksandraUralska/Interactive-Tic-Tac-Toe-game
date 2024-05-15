@@ -1,0 +1,310 @@
+//Oleksandra Uralska
+//02/28/2024
+//Purpose: Design an interactive Tic-Tac-Toe game
+#include <iostream>
+#include <iomanip>
+#include <string>
+using namespace std;
+
+int  printWelcomeMessage(string& player1, string& player2);
+int displayMenu(int& size);
+int SizeSquared(const int x); 
+int initializeBoard(const int boardSize, string& FlatBoard);
+void printBoard(const int size, const int boardSize, const string FlatBoard);
+void updateBoard(string& FlatBoard, const int Turn, const int boardSize, const string player1, const string player2);
+int checkWin(bool& Win, const int size, const int boardSize, const string FlatBoard, const string player1, const string player2);
+int checkTie(bool& Tie, const int Turn, const int boardSize, const bool Win);
+void PrintGoodbyeMessage();
+
+int main() { 
+
+string player1;
+string player2;
+printWelcomeMessage(player1, player2);
+
+int size;
+displayMenu(size);
+
+if (size == 0) {
+	cout<<"\nNo time for games!\n\nHave a nice day!\n";
+} else {
+	char PlayAgain;
+	do {
+
+		cout<<" "<<player1<<" plays SS and "<<player2<<" plays TT."<<endl;
+		const int boardSize = SizeSquared(size);
+		string FlatBoard = "";
+		initializeBoard(boardSize, FlatBoard);
+		cout<<"The Board:"<<endl;
+		printBoard(size, boardSize, FlatBoard);
+		int Turn = 0;
+		bool Win = 0;
+		bool Tie = 0;
+		do {
+			updateBoard(FlatBoard, Turn, boardSize, player1, player2);
+			printBoard(size, boardSize, FlatBoard); 
+			checkWin(Win, size, boardSize, FlatBoard, player1, player2);
+			Turn++;
+			checkTie(Tie, Turn, boardSize, Win); 
+			if (Tie == 1) {
+				cout<<"\n No winner! \n"<<endl;
+				break;
+			}
+		} while (Win == false);
+	cout<<"\nWould you like to play again? (y/n)";
+	cin>>PlayAgain; 
+	} while(PlayAgain == 'y' || PlayAgain == 'Y');
+	PrintGoodbyeMessage();
+}
+return 0;
+}
+
+int  printWelcomeMessage(string& player1, string& player2){
+//Desc: This function displays the welcome message and takes in players' names.
+//Pre: none
+//Post: The welcome message is printed out and the names of the players are modified in the main function.
+cout<<"Welcome to S&T Tic-Tac-Toe game!"<<"\nDon't play it during the lectures though..."<<"\n...and do your homework first!"<<endl;
+cout<<"\nLet's announce the players!"<<endl;
+cout<<"\nPlayer 1: ";
+cin>>player1;
+cout<<"Player 2: ";
+cin>>player2;
+return 0;
+}
+
+int displayMenu(int& size){
+//Desc: This function asks the users to select the size of their board or quit the game. Runs until a valid option is selected.
+//Pre: none
+//Post: The size of the board is modified in the main function.
+cout<<"\nNow, let's select the size of your board."<<endl;
+cout<<"\nOptions:"<<"\n1. 3x3 Board"<<"\n2. 4x4 Board"<<"\n3. 5x5 Board"<<"\n4. 6x6 Board"<<"\n5. 7x7 Board"<<"\n6. 8x8 Board"<<"\n7. 9x9 Board"<<"\n8. Quit the Program"<<endl;
+cout<<"\n Enter the option: ";
+int Option;
+bool Valid = 0;
+do {
+cin>>Option;
+switch(Option){
+	case(1): {
+	size = 3;
+	Valid = true;
+	break;
+	} case(2): {
+	size = 4;
+	Valid = true;
+	break;
+	} case(3): {
+	size = 5;
+	Valid = true;
+	break;
+	} case(4): {
+	size = 6;
+	Valid = true;
+	break;
+	} case(5): {
+	size = 7;
+	Valid = true;
+	break;
+	} case(6): {
+	size = 8;
+	Valid = true;
+	break;
+	} case(7): {
+	size = 9;
+	Valid = true;
+	break;
+	} case(8): {
+	size = 0;
+	Valid = true;
+	break;
+	}
+	}
+if (!Valid)
+	cout<<"Invalid input! Please select the number of the option again: ";
+}while(!Valid);
+return 0;
+}
+
+int SizeSquared(const int x){
+//Desc: Squares the size of the board to get the number of positions on that board.For example, for 9x9 board, returns 81 positions.
+//Pre: Positive integer x.
+//Post: The number of positions on the board is modified in the main function. 
+return x*x;
+}
+
+int initializeBoard(const int boardSize, string& FlatBoard){
+//Desc: Creates a string representation of the board with enumerated positions.
+//Pre: boardSize is a positive integer, FlatBoard is a zero-length string.
+//Post: A string representation of the board is created and modified in the main function. 
+for (int i = 1; i <= boardSize; i++) {
+	if (i < 10)
+		FlatBoard += '0' + to_string(i);
+	else
+		FlatBoard += to_string(i); 
+}
+return 0;
+}
+
+
+void printBoard(const int size, const int boardSize, const string FlatBoard) {
+//Desc:Displays the game board in console
+//Pre: size and boardSize are positive integers, size > boardSize.
+//Post: Prints out the game board 
+int k = 0;
+while (k < boardSize){ //iterating over the elemnts of the board string by their indexes
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			cout<<FlatBoard[k]<<FlatBoard[k+1]<<" ";
+			k += 2;
+		}
+		cout<<endl;
+	}
+}
+return;
+}
+
+void updateBoard(string& FlatBoard, const int Turn, const int boardSize, const string player1, const string player2){
+//Desc: Promps the player to choose a position on the board to fill. Fills that position.
+//Pre: Pass-by-reference string has nonzero length. Turn is a nonnegative integer. boardSize is a positive integer.
+//Post: The string representation of the board is modified in the main function, the chosen position is changed to "SS" or "TT" depending on whose turn it is.
+bool Valid = false;
+string position;
+if (Turn % 2 == 0) {//Player 1
+	cout<<player1<<", enter the position on the board you'd like to fill: ";
+	do {
+		cin>>position;
+		for (int i = 0; i < (boardSize*2 - 1); ++i) {
+			if (FlatBoard[i] == position[0] && FlatBoard[i + 1] == position[1] && position != "SS" && position != "TT") {//Checking if such position exists on the board and if its unoccupied.
+				FlatBoard[i] = 'S';
+				FlatBoard[i+1] = 'S';
+				Valid = true;
+				break;
+			}
+		}
+		if (!Valid) {
+			cout<<"This position is invalid or already occupied! Try again: ";
+			}
+	} while(!Valid);
+} else {
+	cout<<player2<<" ,enter the position on the board you'd like to fill: ";
+	do{
+		cin>>position;
+		for (int i = 0; i < static_cast<int>(FlatBoard.length()) - 1; ++i) {
+			if (FlatBoard[i] == position[0] && FlatBoard[i + 1] == position[1] && position != "SS" && position != "TT") {
+				FlatBoard[i]  = 'T';
+				FlatBoard[i+1] = 'T';
+				Valid = true;
+				break;
+			}
+		}
+		if (!Valid) {
+			cout<<"This position is invalid or already occupied! Try again: ";
+		}
+	} while(!Valid);
+}
+return;
+}
+
+
+int checkWin(bool& Win, const int size, const int boardSize, const string FlatBoard, const string player1, const string player2){
+//Desc: Checks whether there is a horizontal, vertical, or diagonal victory on the board. 
+//Pre: pass-by-reference boolean variable Win is 0 by default. size < boardSize, both are positive integers. FlatBoard has nonzero length 
+//Post: If finds a victory, notifies the players that there is a winner and changes Win to 1. Otherwise makes no changes to the program.
+//Checking columns:
+int CountS = 0;
+int CountT = 0;
+for (int i = 0; i < size*2; i += 2) {
+	for (int j = i; j < boardSize*2; j += size*2) {
+		if (FlatBoard[j] == 'S')
+			CountS++;
+		else if (FlatBoard[j] == 'T')
+			CountT++;
+	}
+	if (CountS == size){
+		cout<<"\n"<<player1<<" wins!"<<endl;
+		Win = true;
+		break;
+	} else if (CountT == size){
+		cout<<"\n"<<player2<<" wins!"<<endl;
+		Win = true;
+		break;
+	} else {
+		CountS = 0;
+		CountT = 0;
+	}
+}
+//Checking rows:
+CountS = 0; //Resetting, just in case 
+CountT = 0;
+for (int i = 0; i < boardSize*2; i += size*2) {//itterating though the first character of every row
+	for (int j = i; j < (i + size*2); j += 2) {
+		if (FlatBoard[j] == 'S')
+			CountS++;
+		else if (FlatBoard[j] == 'T')
+			CountT++;
+	}
+	if (CountS == size){
+		cout<<"\n"<<player1<<" wins!"<<endl;
+		Win = true;
+		break;
+	} else if (CountT == size){
+		cout<<"\n"<<player2<<" wins!"<<endl;
+		Win = true;
+		break;
+	} else {
+		CountS = 0;
+		CountT = 0;
+	}
+}
+//Checking diagonals:
+//Diagonal 1:
+CountS = 0; //Resetting, just in case
+CountT = 0;
+for (int j = (size*2-1); j < boardSize*2; j += (size + 1)) {
+	if (FlatBoard[j] == 'S')
+		CountS++;
+	else if (FlatBoard[j] == 'T')
+		CountT++;
+}
+if (CountS == size){
+	cout<<"\n"<<player1<<" wins!"<<endl;
+	Win = true;
+} else if (CountT == size){
+	cout<<"\n"<<player2<<" wins!"<<endl;
+	Win = true;
+} 
+//Diagonal 2:
+CountS = 0;
+CountT = 0;
+for (int j = 0; j < boardSize*2; j += (boardSize - 1)) {
+ 	if (FlatBoard[j] == 'S')
+		CountS++;
+	else if (FlatBoard[j] == 'T')
+		CountT ++;
+}
+if (CountS == size){
+	cout<<"\n"<<player1<<" wins!"<<endl;
+	Win = true;
+} else if (CountT == size){
+	cout<<"\n"<<player2<<" wins!"<<endl;
+	Win = true;
+}
+return 0;
+}
+
+int checkTie(bool& Tie, const int Turn, const int boardSize, const bool Win){
+// Desc: This function checks wheter there is a tie in the game. That is, if the board is full and there is no winner
+// Pre: Tie is  initially false. Turn is a nonnegative integer. Turn <= boardsize. board is a positive integer.
+//Post: If there is no winner and the board is full: assigns  Tie to true  modifies Tie in the main function. Else does no changes to the program.
+if (Turn == boardSize && Win == 0)
+	Tie = 1;
+return 0;
+}
+
+void PrintGoodbyeMessage() {
+//Desc: Farewells the players
+//Pre: none
+//Post: Prints out goodbye message in console
+cout<<"\nThank you for playing!\n\nHave a nice day!\n";
+return;
+}
+
